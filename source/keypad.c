@@ -1,4 +1,4 @@
-#include "../include/keypad.h"
+#include "../include/tedavr/keypad.h"
 
 void keypadInit(void) {
 	DDRKP = 0b11110000;

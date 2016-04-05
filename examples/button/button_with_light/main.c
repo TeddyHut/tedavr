@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "../../../include/button.h"
+#include "../../../include/tedavr/button.h"
 
 int main(void) {
 	DDRD = 0b00000011;

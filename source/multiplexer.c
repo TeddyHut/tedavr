@@ -1,4 +1,4 @@
-  #include "../include/multiplexer.h"
+  #include "../include/tedavr/multiplexer.h"
 
 uint8_t _multiplexBV(uint8_t bit) {
 	return(1<<bit);

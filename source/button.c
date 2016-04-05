@@ -1,4 +1,4 @@
-#include "../include/button.h"
+#include "../include/tedavr/button.h"
 
 uint8_t _buttonBV(uint8_t bit) {
 	return(1<<bit);

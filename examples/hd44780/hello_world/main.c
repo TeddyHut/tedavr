@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "../../../include/hd44780.h"
+#include "../../../include/tedavr/hd44780.h"
 
 int main(void) {
 	DDRC = 0b00111111;

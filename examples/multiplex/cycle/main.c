@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "../../../include/multiplex.h"
+#include "../../../include/tedavr/multiplex.h"
 
 int main(void) {
 	DDRC = 0b00000111;
