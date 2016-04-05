@@ -40,9 +40,6 @@ void button_update(Button *const button) {
 		button->flag_state_released = ((!(button->flag_state_current)) && button->flag_state_previous) ? 1 : 0;
 }
 
-#endif
-
-
 uint8_t buttonGet_attrib_released(Button const*const button) {
 	return(general_GetBitFlag_u8(&(button->attrib), BUTTON_ATTRIB_RELEASED));
 }
