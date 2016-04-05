@@ -1,4 +1,4 @@
-#include "../include/hd44780.h"
+#include "../include/tedavr/hd44780.h"
 
 uint8_t _hd44780BV(uint8_t bit) {
 	return(1<<bit);
