@@ -53,7 +53,7 @@ void ic_74HC595_latchOutput(IC_74HC595 const *const ic_74hc595);
 //Enable or disable master reset according to -state-
 void ic_74HC595_clearContents(IC_74HC595 const *const ic_74hc595);
 //Push a -byte- into the register stack. Returns popped data
-uint8_t ic_74HC595_push_pop_byte(IC_74HC595 *const ic_74hc595, uint8_t const byte);
+uint8_t ic_74HC595_push_pop_byte(IC_74HC595 const *const ic_74hc595, uint8_t const byte);
 //Push and pop data from the register stack. Data returned will be placed in -buffer-
 void ic_74HC595_push_pop(IC_74HC595 const *const ic_74hc595, void *const buffer, size_t const buffer_size);
 //Push a -byte- into the stack
