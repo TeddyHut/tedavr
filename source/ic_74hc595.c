@@ -12,10 +12,8 @@ static void fallingEdgePulse(IC_74HC595 const *const ic_74hc595, IC_74HC595_Pin_
 	ic_74HC595_setPin(ic_74hc595, pin, 1);
 }
 
-void ic_74HC595_setPin(IC_74HC595 const *const ic_74hc595, IC_74HC595_Pin_e const pin, uint8_t state) {
+void ic_74HC595_setPin(IC_74HC595 const *const ic_74hc595, IC_74HC595_Pin_e const pin, uint8_t const state) {
 	//Could maybe use a union instead of general_whatever
-	volatile uint8_t *port;
-	uint8_t bit_significance;
 	switch (pin) {
 	case IC_74HC595_Pin_sero:
 		general_SetBitFlag_u8(ic_74hc595->data_port_sero_p, ic_74hc595->data_shift_sero, state);
