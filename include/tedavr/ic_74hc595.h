@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -66,3 +70,7 @@ uint8_t ic_74HC595_pop_byte(IC_74HC595 const *const ic_74hc595);
 void ic_74HC595_pop(IC_74HC595 const *const ic_74hc595, void *const buffer, size_t const buffer_size);
 //Allocates memory to be used for virtual stack
 void ic_74HC595_allocateVirtualMemory(IC_74HC595 *const ic_74hc595);
+
+#ifdef __cplusplus
+}
+#endif
