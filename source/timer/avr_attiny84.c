@@ -23,8 +23,8 @@ static void timer_0_set_mode_bits(uint8_t const value);
 static void timer_1_set_mode_bits(uint8_t const value);
 static void timer_0_set_compareOutputMode_A_bits(uint8_t const value);
 static void timer_0_set_compareOutputMode_B_bits(uint8_t const value);
-static void timer_1_set_compareOutputMode_A_bits(uint8_t const value);
-static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
+//static void timer_1_set_compareOutputMode_A_bits(uint8_t const value);
+//static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
 static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value);
 static uint8_t timer_0_get_clockSelect_bits(void);
 static uint8_t timer_0_get_mode_bits(void);
@@ -188,6 +188,7 @@ static void timer_0_set_compareOutputMode_B_bits(uint8_t const value) {
 	TCCR0A |= ((value & 0b00000011) << 4);
 }
 
+/*
 static void timer_1_set_compareOutputMode_A_bits(uint8_t const value) {
 	TCCR1A &= 0b00111111;
 	TCCR1A |= ((value & 0b00000011) << 6);
@@ -197,6 +198,7 @@ static void timer_1_set_compareOutputMode_B_bits(uint8_t const value) {
 	TCCR1A &= 0b11001111;
 	TCCR1A |= ((value & 0b00000011) << 4);
 }
+*/
 
 static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value) {
 	switch (pin) {
@@ -355,4 +357,5 @@ Timer_ModeGeneral_e timer_get_modeGeneral(Timer_Select_e const timer) {
 }
 
 Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin) {
+	return(Timer_CompareOutputMode_Disconnected);
 }
