@@ -57,6 +57,19 @@ extern "C" {
 		Timer_Mode_PhaseFreqCorrectPWM_TopICR,	//1; Top = ICR, update OCRx at BOTTOM, TOV flag set on BOTTOM
 	} Timer_Mode_e;
 
+	typedef enum Timer_ModeGeneral_e {
+		Timer_ModeGeneral_Normal,
+		Timer_ModeGeneral_CTC,
+		Timer_ModeGeneral_FastPWM,
+		Timer_ModeGeneral_PhaseCorrectPWM,
+		Timer_ModeGeneral_PhaseFreqCorrectPWM,
+	} Timer_ModeGeneral_e;
+
+	typedef enum Timer_OutputComparePin_e {
+		Timer_OutputComparePin_A,
+		Timer_OutputComparePin_B,
+	} Timer_OutputComparePin_e;
+
 	typedef enum Timer_CompareOutputMode_e {
 		Timer_CompareOutputMode_Disconnected,
 
@@ -79,19 +92,18 @@ extern "C" {
 		Timer_Select_e select;
 		Timer_ClockSelect_e clockSelect;
 		Timer_Mode_e mode;
-		Timer_CompareOutputMode_e compareOutputMode;
-
+		Timer_CompareOutputMode_e compareOutputMode_A;
+		Timer_CompareOutputMode_e compareOutputMode_B;
 	} Timer;
 
-	void timer_setAttribute(Timer_Select_e const timer, Timer_Attribute_e const attribute, int const value);
 	void timer_set_clockSelect(Timer_Select_e const timer, Timer_ClockSelect_e const value);
 	void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value);
-	void timer_set_compareOutputMode(Timer_Select_e const timer, Timer_CompareOutputMode_e const value);
+	void timer_set_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin, Timer_CompareOutputMode_e const value);
 	
-	int timer_getAttribute(Timer_Select_e const timer, Timer_Attribute_e const attribute);
 	Timer_ClockSelect_e timer_get_clockSelect(Timer_Select_e const timer);
 	Timer_Mode_e timer_get_mode(Timer_Select_e const timer);
-	Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer);
+	Timer_ModeGeneral_e timer_get_modeGeneral(Timer_Select_e const timer);
+	Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin);
 
 	void timer_get(Timer *const timer);
 	void timer_set(Timer *const timer);

@@ -1,98 +1,101 @@
 #include "../../include/tedavr/timer/avr_attiny84.h"
 
-//TODO: Just make it so that there are functions for setting the bits of these SFRs.
+#define Timer_ClockSelect_None_b 0
+#define Timer_ClockSelect_Prescale1_b 1
+#define Timer_ClockSelect_Prescale8_b 2
+#define Timer_ClockSelect_Prescale64_b 3
+#define Timer_ClockSelect_Prescale256_b 4
+#define Timer_ClockSelect_Prescale1024_b 5
+#define Timer_ClockSelect_ExternalFallingEdge_b 6
+#define Timer_ClockSelect_ExternalRisingEdge_b 7
 
-void timer_setAttribute(Timer_Select_e const timer, Timer_Attribute_e const attribute, int const value) {
-	switch (attribute) {
-	case Timer_ClockSelect:
-		timer_set_clockSelect(timer, value);
+#define Timer_0_Mode_Normal_d 0
+#define Timer_0_Mode_CTC_TopOCRA_d 2
+#define Timer_0_Mode_FastPWM_TopFF_tovMAX_d 3
+#define Timer_0_Mode_FastPWM_TopOCRA_udtBOTTOM_d 7
+#define Timer_0_Mode_PhaseCorrectPWM_TopFF_d 1
+#define Timer_0_Mode_PhaseCorrectPWM_TopOCRA_d 5
+
+
+static void timer_0_set_clockSelect_bits(uint8_t const value);
+static void timer_1_set_clockSelect_bits(uint8_t const value);
+static void timer_0_set_mode_bits(uint8_t const value);
+static void timer_1_set_mode_bits(uint8_t const value);
+static void timer_0_set_compareOutputMode_A_bits(uint8_t const value);
+static void timer_0_set_compareOutputMode_B_bits(uint8_t const value);
+static void timer_1_set_compareOutputMode_A_bits(uint8_t const value);
+static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
+static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value);
+static uint8_t timer_0_get_clockSelect_bits(void);
+static uint8_t timer_0_get_mode_bits(void);
+static uint8_t timer_0_get_compareOutputMode_A_bits(void);
+static uint8_t timer_0_get_compareOutputMode_B_bits(void);
+static uint8_t timer_0_get_compareOutputMode_bits(void);
+
+static void timer_0_set_clockSelect_bits(uint8_t const value) {
+	TCCR0B &= 0b11111000;
+	TCCR0B |= (value & 0b00000111);
+}
+
+static void timer_1_set_clockSelect_bits(uint8_t const value) {
+	TCCR1B &= 0b11111000;
+	TCCR1B |= (value & 0b00000111);
+}
+
+void timer_set_clockSelect(Timer_Select_e const timer, Timer_ClockSelect_e const value) {
+	//This could just be pulled out of the enum.
+	uint8_t bits;
+	switch (value) {
+	case Timer_ClockSelect_None:
+		bits = Timer_ClockSelect_None_b;
 		break;
-	case Timer_Mode:
-		timer_set_mode(timer, value);
+	case Timer_ClockSelect_Prescale1:
+		bits = Timer_ClockSelect_Prescale1_b;
 		break;
-	case Timer_CompareOutputMode:
-		timer_set_compareOutputMode(timer, value);
+	case Timer_ClockSelect_Prescale8:
+		bits = Timer_ClockSelect_Prescale8_b;
 		break;
+	case Timer_ClockSelect_Prescale64:
+		bits = Timer_ClockSelect_Prescale64_b;
+		break;
+	case Timer_ClockSelect_Prescale256:
+		bits = Timer_ClockSelect_Prescale256_b;
+		break;
+	case Timer_ClockSelect_Prescale1024:
+		bits = Timer_ClockSelect_Prescale1024_b;
+		break;
+	case Timer_ClockSelect_ExternalFallingEdge:
+		bits = Timer_ClockSelect_ExternalFallingEdge_b;
+		break;
+	case Timer_ClockSelect_ExternalRisingEdge:
+		bits = Timer_ClockSelect_ExternalRisingEdge_b;
+		break;
+	default:
+		bits = 0;
+		break;
+	}
+	switch (timer) {
+	case Timer_8_0:
+		timer_0_set_clockSelect_bits(bits);
+	case Timer_16_0:
+		timer_1_set_clockSelect_bits(bits);
 	default:
 		break;
 	}
 }
 
-void timer_set_clockSelect(Timer_Select_e const timer, Timer_ClockSelect_e const value) {
-	switch (timer) {
-	case Timer_8_0:
-		switch (value) {
-		case Timer_ClockSelect_None:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			break;
-		case Timer_ClockSelect_Prescale1:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000001;	//CS00 = 1
-			break;
-		case Timer_ClockSelect_Prescale8:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000010;	//CS01 = 1
-			break;
-		case Timer_ClockSelect_Prescale64:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000011;	//CS01 = 1, CS00 = 1
-			break;
-		case Timer_ClockSelect_Prescale256:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000100;	//CS02 = 1
-			break;
-		case Timer_ClockSelect_Prescale1024:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000101;	//CS02 = 1, CS00 = 1
-			break;
-		case Timer_ClockSelect_ExternalFallingEdge:
-			TCCR0B &= 0b11111000;	//CS02 = 0, CS01 = 0, CS00 = 0
-			TCCR0B |= 0b00000110;	//CS02 = 1, CS01 = 1
-			break;
-		case Timer_ClockSelect_ExternalRisingEdge:
-			TCCR0B |= 0b00000111;	//CS02 = 1, CS01 = 1, CS00 = 1
-			break;
-		default:
-			break;
-		}
-	case Timer_16_0:
-		switch (value) {
-		case Timer_ClockSelect_None:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			break;
-		case Timer_ClockSelect_Prescale1:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000001;	//CS10 = 1
-			break;
-		case Timer_ClockSelect_Prescale8:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000010;	//CS11 = 1
-			break;
-		case Timer_ClockSelect_Prescale64:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000011;	//CS11 = 1, CS10 = 1
-			break;
-		case Timer_ClockSelect_Prescale256:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000100;	//CS12 = 1
-			break;
-		case Timer_ClockSelect_Prescale1024:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000101;	//CS12 = 1, CS10 = 1
-			break;
-		case Timer_ClockSelect_ExternalFallingEdge:
-			TCCR1B &= 0b11111000;	//CS12 = 0, CS11 = 0, CS10 = 0
-			TCCR1B |= 0b00000110;	//CS12 = 1, CS11 = 1
-			break;
-		case Timer_ClockSelect_ExternalRisingEdge:
-			TCCR1B |= 0b00000111;	//CS12 = 1, CS11 = 1, CS10 = 1
-			break;
-		default:
-			break;
-		}
-	default:
-		break;
-	}
+static void timer_0_set_mode_bits(uint8_t const value) {
+	TCCR0A &= 0b11111100;
+	TCCR0A |= (value & 0b00000011);
+	TCCR0B &= 0b11110111;
+	TCCR0B |= ((value & 0b00000100) << 1);
+}
+
+static void timer_1_set_mode_bits(uint8_t const value) {
+	TCCR1A &= 0b11111100;
+	TCCR1A |= (value & 0b00000011);
+	TCCR1B &= 0b11100111;
+	TCCR1B |= ((value & 0b00001100) << 1);
 }
 
 void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value) {
@@ -100,31 +103,22 @@ void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value) {
 	case Timer_8_0:
 		switch (value) {
 		case Timer_Mode_Normal:
-			TCCR0A &= 0b11111100;	//WGM01 = 0, WGM00 = 0
-			TCCR0B &= 0b11110111;	//WGM02 = 0
+			timer_0_set_mode_bits(Timer_0_Mode_Normal_d);
 			break;
 		case Timer_Mode_CTC_TopOCRA:
-			TCCR0A &= 0b11111100;	//WGM01 = 0, WGM00 = 0
-			TCCR0A |= 0b00000010;	//WGM01 = 1
-			TCCR0B &= 0b11110111;	//WGM02 = 0
+			timer_0_set_mode_bits(Timer_0_Mode_CTC_TopOCRA_d);
 			break;
 		case Timer_Mode_FastPWM_TopFF_tovMAX:
-			TCCR0A |= 0b00000011;	//WGM01 = 1, WGM00 = 1
-			TCCR0B &= 0b11110111;	//WGM02 = 0
+			timer_0_set_mode_bits(Timer_0_Mode_FastPWM_TopFF_tovMAX_d);
 			break;
 		case Timer_Mode_FastPWM_TopOCRA_udtBOTTOM:
-			TCCR0A |= 0b00000011;	//WGM01 = 1, WGM00 = 1
-			TCCR0B |= 0b00001000;	//WGM02 = 1
+			timer_0_set_mode_bits(Timer_0_Mode_FastPWM_TopOCRA_udtBOTTOM_d);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopFF:
-			TCCR0A &= 0b11111100;	//WGM01 = 0, WGM00 = 0
-			TCCR0A |= 0b00000001;	//WGM00 = 1
-			TCCR0B &= 0b11110111;	//WGM02 = 0
+			timer_0_set_mode_bits(Timer_0_Mode_PhaseCorrectPWM_TopFF_d);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopOCRA:
-			TCCR0A &= 0b11111100;	//WGM01 = 1, WGM00 = 0
-			TCCR0A |= 0b00000001;	//WGM00 = 1
-			TCCR0B |= 0b00001000;	//WGM02 = 1
+			timer_0_set_mode_bits(Timer_0_Mode_PhaseCorrectPWM_TopOCRA_d);
 			break;
 		default:
 			break;
@@ -132,80 +126,49 @@ void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value) {
 	case Timer_16_0:
 		switch (value) {
 		case Timer_Mode_Normal:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1B &= 0b11100111;	//WGM13 - 0, WGM12 = 0
+			timer_1_set_mode_bits(0);
 			break;
 		case Timer_Mode_CTC_TopOCRA:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00001000;	//WGM12 = 1
+			timer_1_set_mode_bits(4);
 			break;
 		case Timer_Mode_CTC_TopICR:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1B |= 0b00011000;	//WGM13 = 1, WGM12 = 1
+			timer_1_set_mode_bits(12);
 			break;
 		case Timer_Mode_FastPWM_TopFF_tovTOP:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000001;	//WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00001000;	//WGM12 = 1
+			timer_1_set_mode_bits(5);
 			break;
 		case Timer_Mode_FastPWM_Top1FF:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000010;	//WGM11 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00001000;	//WGM12 = 1
+			timer_1_set_mode_bits(6);
 			break;
 		case Timer_Mode_FastPWM_Top3FF:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000011;	//WGM11 = 1, WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00001000;	//WGM12 = 1
+			timer_1_set_mode_bits(7);
 			break;
 		case Timer_Mode_FastPWM_TopOCRA_utdTOP:
-			TCCR1A |= 0b00000011;	//WGM11 = 1, WGM10 = 1
-			TCCR1B |= 0b00011000;	//WGM13 = 1, WGM12 = 1
+			timer_1_set_mode_bits(15);
 			break;
 		case Timer_Mode_FastPWM_TopICR:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000010;	//WGM11 = 1
-			TCCR1B |= 0b00011000;	//WGM13 = 1, WGM12 = 1
+			timer_1_set_mode_bits(14);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopFF:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000001;	//WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
+			timer_1_set_mode_bits(1);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_Top1FF:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000010;	//WGM11 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
+			timer_1_set_mode_bits(2);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_Top3FF:
-			TCCR1A |= 0b00000011;	//WGM11 = 1, WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
+			timer_1_set_mode_bits(3);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopOCRA:
-			TCCR1A |= 0b00000011;	//WGM11 = 1, WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00010000;	//WGM13 = 1
+			Ttimer_1_set_mode_bits(11);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopICR:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000010;	//WGM11 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00010000;	//WGM13 = 1
+			timer_1_set_mode_bits(10);
 			break;
 		case Timer_Mode_PhaseFreqCorrectPWM_TopOCRA:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1A |= 0b00000001;	//WGM10 = 1
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00010000;	//WGM13 = 1
+			timer_1_set_mode_bits(9);
 			break;
 		case Timer_Mode_PhaseFreqCorrectPWM_TopICR:
-			TCCR1A &= 0b11111100;	//WGM11 = 0, WGM10 = 0
-			TCCR1B &= 0b11100111;	//WGM13 = 0, WGM12 = 0
-			TCCR1B |= 0b00010000;	//WGM13 = 1
+			timer_1_set_mode_bits(8);
 			break;
 		default:
 			break;
@@ -215,30 +178,154 @@ void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value) {
 	}
 }
 
-void timer_set_compareOutputMode(Timer_Select_e const timer, Timer_CompareOutputMode_e const value) {
+static void timer_0_set_compareOutputMode_A_bits(uint8_t const value) {
+	TCCR0A &= 0b00111111;
+	TCCR0A |= ((value & 0b00000011) << 6);
 }
 
-int timer_getAttribute(Timer_Select_e const timer, Timer_Attribute_e const attribute) {
-	switch (attribute) {
-	case Timer_ClockSelect:
-		return(timer_get_clockSelect(timer));
+static void timer_0_set_compareOutputMode_B_bits(uint8_t const value) {
+	TCCR0A &= 0b11001111;
+	TCCR0A |= ((value & 0b00000011) << 4);
+}
+
+static void timer_1_set_compareOutputMode_A_bits(uint8_t const value) {
+	TCCR1A &= 0b00111111;
+	TCCR1A |= ((value & 0b00000011) << 6);
+}
+
+static void timer_1_set_compareOutputMode_B_bits(uint8_t const value) {
+	TCCR1A &= 0b11001111;
+	TCCR1A |= ((value & 0b00000011) << 4);
+}
+
+static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value) {
+	switch (pin) {
+	case Timer_OutputComparePin_A:
+		timer_0_set_compareOutputMode_A_bits(value);
 		break;
-	case Timer_Mode:
-		return(timer_get_mode(timer));
-		break;
-	case Timer_CompareOutputMode:
-		return(timer_get_compareOutputMode(timer));
+	case Timer_OutputComparePin_B:
+		timer_0_set_compareOutputMode_B_bits(value);
 		break;
 	default:
 		break;
 	}
 }
 
+void timer_set_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin, Timer_CompareOutputMode_e const value) {
+	Timer_ModeGeneral_e mode = timer_get_modeGeneral(timer);
+	switch (timer) {
+	case Timer_8_0:
+		switch (value) {
+		case Timer_CompareOutputMode_Disconnected:
+			timer_0_set_compareOutputMode_bits(pin, 0);
+			break;
+		case Timer_CompareOutputMode_ToggleOnCompareMatch:
+			if ((mode == Timer_ModeGeneral_Normal) || (mode == Timer_ModeGeneral_CTC))
+				timer_0_set_compareOutputMode_bits(pin, 1);
+			else if (((mode == Timer_ModeGeneral_FastPWM) || (mode == Timer_ModeGeneral_PhaseCorrectPWM)) && (pin == Timer_OutputComparePin_A)) {
+				if (TCCR0B & 0b00001000)	//if WGM02
+					timer_0_set_compareOutputMode_A_bits(1);
+			}
+			break;
+		case Timer_CompareOutputMode_ClearOnCompareMatch:
+			if ((mode == Timer_ModeGeneral_Normal) || (mode == Timer_ModeGeneral_CTC))
+				timer_0_set_compareOutputMode_bits(pin, 2);
+			break;
+		case Timer_CompareOutputMode_SetOnCompareMatch:
+			if ((mode == Timer_ModeGeneral_Normal) || (mode == Timer_ModeGeneral_CTC))
+				timer_0_set_compareOutputMode_bits(pin, 3);
+			break;
+		case Timer_CompareOutputMode_ClearOnCompareMatch_SetAtBottom:
+			if (mode == Timer_ModeGeneral_FastPWM)
+				timer_0_set_compareOutputMode_bits(pin, 2);
+			break;
+		case Timer_CompareOutputMode_SetOnCompareMatch_ClearAtBottom:
+			if (mode == Timer_ModeGeneral_FastPWM)
+				timer_0_set_compareOutputMode_bits(pin, 3);
+			break;
+		case Timer_CompareOutputMode_ClearOnCompareMatchUp_SetOnCompareMatchDown:
+			if (mode == Timer_ModeGeneral_PhaseCorrectPWM)
+				timer_0_set_compareOutputMode_bits(pin, 2);
+			break;
+		case Timer_CompareOutputMode_SetOnCompareMatchUp_ClearOnCompareMatchDown:
+			if (mode == Timer_ModeGeneral_PhaseCorrectPWM)
+				timer_0_set_compareOutputMode_bits(pin, 3);
+			break;
+		default:
+			break;
+		}
+	default:
+		break;
+	}
+}
+
+static uint8_t timer_0_get_clockSelect_bits(void) {
+	return(TCCR0B & 0b00000111);
+}
+
 Timer_ClockSelect_e timer_get_clockSelect(Timer_Select_e const timer) {
+	uint8_t bits = timer_0_get_clockSelect_bits();	//Just in case the switch repeatedly calls the function
+	switch (bits) {
+	case Timer_ClockSelect_None_b:
+		return(Timer_ClockSelect_None);
+		break;
+	case Timer_ClockSelect_Prescale1_b:
+		return(Timer_ClockSelect_Prescale1);
+		break;
+	case Timer_ClockSelect_Prescale8_b:
+		return(Timer_ClockSelect_Prescale8);
+		break;
+	case Timer_ClockSelect_Prescale64_b:
+		return(Timer_ClockSelect_Prescale64);
+		break;
+	case Timer_ClockSelect_Prescale256_b:
+		return(Timer_ClockSelect_Prescale256);
+		break;
+	case Timer_ClockSelect_Prescale1024_b:
+		return(Timer_ClockSelect_Prescale1024);
+		break;
+	case Timer_ClockSelect_ExternalFallingEdge_b:
+		return(Timer_ClockSelect_ExternalFallingEdge);
+		break;
+	case Timer_ClockSelect_ExternalRisingEdge_b:
+		return(Timer_ClockSelect_ExternalRisingEdge);
+		break;
+	default:
+		break;
+	}
+	return(Timer_ClockSelect_None);
+}
+
+static uint8_t timer_0_get_mode_bits(void) {
+	return(((TCCR0B & 0b00001000) >> 1) | (TCCR0A & 0b00000011));
 }
 
 Timer_Mode_e timer_get_mode(Timer_Select_e const timer) {
+	uint8_t bits = timer_0_get_mode_bits();
+	switch (bits) {
+	case Timer_0_Mode_Normal_d:
+		return(Timer_Mode_Normal);
+		break;
+	case Timer_0_Mode_CTC_TopOCRA_d:
+		return(Timer_Mode_CTC_TopOCRA);
+		break;
+	case Timer_0_Mode_FastPWM_TopFF_tovMAX_d:
+		return(Timer_Mode_FastPWM_TopFF_tovMAX);
+		break;
+	case Timer_0_Mode_FastPWM_TopOCRA_udtBOTTOM_d:
+		return(Timer_Mode_FastPWM_TopOCRA_udtBOTTOM);
+		break;
+	case Timer_0_Mode_PhaseCorrectPWM_TopFF_d:
+		return(Timer_Mode_PhaseCorrectPWM_TopFF);
+		break;
+	case Timer_0_Mode_PhaseCorrectPWM_TopOCRA_d:
+		return(Timer_Mode_PhaseCorrectPWM_TopOCRA);
+		break;
+	default:
+		break;
+	}
+	return(Timer_Mode_Normal);
 }
 
-Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer) {
+Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin) {
 }
