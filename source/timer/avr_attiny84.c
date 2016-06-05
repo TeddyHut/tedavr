@@ -28,9 +28,9 @@ static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
 static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value);
 static uint8_t timer_0_get_clockSelect_bits(void);
 static uint8_t timer_0_get_mode_bits(void);
-static uint8_t timer_0_get_compareOutputMode_A_bits(void);
-static uint8_t timer_0_get_compareOutputMode_B_bits(void);
-static uint8_t timer_0_get_compareOutputMode_bits(void);
+//static uint8_t timer_0_get_compareOutputMode_A_bits(void);
+//static uint8_t timer_0_get_compareOutputMode_B_bits(void);
+//static uint8_t timer_0_get_compareOutputMode_bits(void);
 
 static void timer_0_set_clockSelect_bits(uint8_t const value) {
 	TCCR0B &= 0b11111000;
@@ -159,7 +159,7 @@ void timer_set_mode(Timer_Select_e const timer, Timer_Mode_e value) {
 			timer_1_set_mode_bits(3);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopOCRA:
-			Ttimer_1_set_mode_bits(11);
+			timer_1_set_mode_bits(11);
 			break;
 		case Timer_Mode_PhaseCorrectPWM_TopICR:
 			timer_1_set_mode_bits(10);
@@ -325,6 +325,33 @@ Timer_Mode_e timer_get_mode(Timer_Select_e const timer) {
 		break;
 	}
 	return(Timer_Mode_Normal);
+}
+
+Timer_ModeGeneral_e timer_get_modeGeneral(Timer_Select_e const timer) {
+	Timer_Mode_e mode = timer_get_mode(timer);
+	switch (mode) {
+	case Timer_Mode_Normal:
+		return(Timer_ModeGeneral_Normal);
+		break;
+	case Timer_Mode_CTC_TopOCRA:
+		return(Timer_ModeGeneral_CTC);
+		break;
+	case Timer_Mode_FastPWM_TopFF_tovMAX:
+		return(Timer_ModeGeneral_FastPWM);
+		break;
+	case Timer_Mode_FastPWM_TopOCRA_udtBOTTOM:
+		return(Timer_ModeGeneral_FastPWM);
+		break;
+	case Timer_Mode_PhaseCorrectPWM_TopFF:
+		return(Timer_ModeGeneral_PhaseCorrectPWM);
+		break;
+	case Timer_Mode_PhaseCorrectPWM_TopOCRA:
+		return(Timer_ModeGeneral_PhaseCorrectPWM);
+		break;
+	default:
+		break;
+	}
+	return(Timer_ModeGeneral_Normal);
 }
 
 Timer_CompareOutputMode_e timer_get_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin) {
