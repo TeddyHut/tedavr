@@ -16,6 +16,22 @@
 #define Timer_0_Mode_PhaseCorrectPWM_TopFF_d 1
 #define Timer_0_Mode_PhaseCorrectPWM_TopOCRA_d 5
 
+#define Timer_1_Mode_Normal_d			//1,0; Top = 0xff or 0xffff, update OCRx at Immediate, TOV flag set on MAX
+#define Timer_1_Mode_CTC_TopOCRA_d		//1,0; Top = OCRA, update OCRx at Immediate, TOV flag set on MAX
+#define Timer_1_Mode_CTC_TopICR_d,					//1; Top = ICR, update OCRx at Immediate, TOV flag set on MAX
+#define Timer_1_Mode_FastPWM_TopFF_tovTOP_d,		//1; Top = 0xff, update OCRx at TOP, TOV flag set on TOP
+Timer_Mode_FastPWM_Top1FF,				//1; Top = 0x1ff, update OCRx at TOP, TOV flag set on TOP
+Timer_Mode_FastPWM_Top3FF,				//1; Top = 0x3ff, update OCRx at TOP, TOV flag set on TOP
+Timer_Mode_FastPWM_TopOCRA_utdTOP,		//1; Top = OCRA, update OCRx at TOP, TOV flag set on BOTTOM
+Timer_Mode_FastPWM_TopICR,				//1; Top = ICR, update OCRx at TOP, TOV flag set on TOP
+Timer_Mode_PhaseCorrectPWM_TopFF,		//1,0; Top = 0xff, update OCRx at TOP, TOV flag set on BOTTOM
+Timer_Mode_PhaseCorrectPWM_Top1FF,		//1; Top = 0x1ff, update OCRx at Immediate, TOV flag set on BOTTOM
+Timer_Mode_PhaseCorrectPWM_Top3FF,		//1; Top = 0x3ff, update OCRx at Immediate, TOV flag set on BOTTOM
+Timer_Mode_PhaseCorrectPWM_TopOCRA,		//1,0; Top = OCRA, update OCRx at TOP, TOV flag set on BOTTOM
+Timer_Mode_PhaseCorrectPWM_TopICR,		//1, Top = ICR, update OCRx at TOP, TOV flag set on BOTTOM
+Timer_Mode_PhaseFreqCorrectPWM_TopOCRA,	//1; Top = OCRA, update OCRx at BOTTOM, TOV flag set on BOTTOM
+Timer_Mode_PhaseFreqCorrectPWM_TopICR,	//1; Top = ICR, update OCRx at BOTTOM, TOV flag set on BOTTOM
+
 
 static void timer_0_set_clockSelect_bits(uint8_t const value);
 static void timer_1_set_clockSelect_bits(uint8_t const value);
@@ -27,6 +43,7 @@ static void timer_0_set_compareOutputMode_B_bits(uint8_t const value);
 //static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
 static void timer_0_set_compareOutputMode_bits(Timer_OutputComparePin_e const pin, uint8_t const value);
 static uint8_t timer_0_get_clockSelect_bits(void);
+static uint8_t timer_1_get_clockSelect_bits(void);
 static uint8_t timer_0_get_mode_bits(void);
 //static uint8_t timer_0_get_compareOutputMode_A_bits(void);
 //static uint8_t timer_0_get_compareOutputMode_B_bits(void);
@@ -265,8 +282,23 @@ static uint8_t timer_0_get_clockSelect_bits(void) {
 	return(TCCR0B & 0b00000111);
 }
 
+static uint8_t timer_1_get_clockSelect_bits(void) {
+	return(TCCR1B & 0b00000111);
+}
+
 Timer_ClockSelect_e timer_get_clockSelect(Timer_Select_e const timer) {
-	uint8_t bits = timer_0_get_clockSelect_bits();	//Just in case the switch repeatedly calls the function
+	uint8_t bits;
+	switch (timer) {
+	case Timer_8_0:
+		bits = timer_0_get_clockSelect_bits();
+		break;
+	case Timer_16_0:
+		bits = timer_1_get_clockSelect_bits();
+		break;
+	default:
+		bits = 0;
+		break;
+	}
 	switch (bits) {
 	case Timer_ClockSelect_None_b:
 		return(Timer_ClockSelect_None);
