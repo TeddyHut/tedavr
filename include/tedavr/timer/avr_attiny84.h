@@ -5,6 +5,7 @@
 #endif
 
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +24,7 @@ extern "C" {
 	} Timer_Select_e;
 
 	typedef enum Timer_ClockSelect_e {
-		Timer_ClockSelect_None,
+		Timer_ClockSelect_None = 0,
 		Timer_ClockSelect_Prescale1,
 		Timer_ClockSelect_Prescale8,
 		Timer_ClockSelect_Prescale64,
@@ -34,7 +35,7 @@ extern "C" {
 	} Timer_ClockSelect_e;
 
 	typedef enum Timer_Mode_e {
-		Timer_Mode_Normal,						//1,0; Top = 0xff or 0xffff, update OCRx at Immediate, TOV flag set on MAX
+		Timer_Mode_Normal = 0,					//1,0; Top = 0xff or 0xffff, update OCRx at Immediate, TOV flag set on MAX
 
 		Timer_Mode_CTC_TopOCRA,					//1,0; Top = OCRA, update OCRx at Immediate, TOV flag set on MAX
 		Timer_Mode_CTC_TopICR,					//1; Top = ICR, update OCRx at Immediate, TOV flag set on MAX
@@ -58,7 +59,7 @@ extern "C" {
 	} Timer_Mode_e;
 
 	typedef enum Timer_ModeGeneral_e {
-		Timer_ModeGeneral_Normal,
+		Timer_ModeGeneral_Normal = 128,
 		Timer_ModeGeneral_CTC,
 		Timer_ModeGeneral_FastPWM,
 		Timer_ModeGeneral_PhaseCorrectPWM,
