@@ -155,6 +155,22 @@ static uint8_t const array_0_B_compareOutputMode[Timer_0_B_CompareOutputMode_siz
 };
 
 static uint8_t find_pair_pgm(uint8_t const addr[][2], uint8_t const len, uint8_t const find_bit_value, uint8_t const pair);
+static uint8_t find_compareOutputMode_pgm(uint8_t const addr[][2], uint8_t const addr_len, uint8_t const index[][3], uint8_t const index_len, uint8_t const find_bit_value, uint8_t const mode, uint8_t const com);
+static void timer_0_set_clockSelect_bits(uint8_t const value);
+static void timer_1_set_clockSelect_bits(uint8_t const value);
+static void timer_0_set_mode_bits(uint8_t const value);
+static void timer_1_set_mode_bits(uint8_t const value);
+static void timer_0_set_compareOutputMode_A_bits(uint8_t const value);
+static void timer_0_set_compareOutputMode_B_bits(uint8_t const value);
+//static void timer_1_set_compareOutputMode_A_bits(uint8_t const value);
+//static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
+static uint8_t timer_0_get_clockSelect_bits(void);
+static uint8_t timer_1_get_clockSelect_bits(void);
+static uint8_t timer_0_get_mode_bits(void);
+static uint8_t timer_1_get_mode_bits(void);
+static Timer_ModeGeneral_e timer_get_modeGeneral_m(uint8_t const mode);
+static uint8_t timer_0_get_compareOutputMode_A_bits(void);
+static uint8_t timer_0_get_compareOutputMode_B_bits(void);
 
 static uint8_t find_pair_pgm(uint8_t const addr[][2], uint8_t const len, uint8_t const find_bit_value, uint8_t const pair) {
 	uint8_t x = find_bit_value ? 0 : 1;
@@ -166,13 +182,11 @@ static uint8_t find_pair_pgm(uint8_t const addr[][2], uint8_t const len, uint8_t
 	return(UINT8_MAX);
 }
 
-static uint8_t find_compareOutputMode_pgm(uint8_t const addr[][2], uint8_t const addr_len, uint8_t const index[][3], uint8_t const index_len, uint8_t const find_bit_value, uint8_t const mode, uint8_t const com);
-
 static uint8_t find_compareOutputMode_pgm(uint8_t const addr[][2], uint8_t const addr_len, uint8_t const index[][3], uint8_t const index_len, uint8_t const find_bit_value, uint8_t const mode, uint8_t const com) {
 	uint8_t const mode_general = timer_get_modeGeneral_m(mode);
 	for (uint8_t i = 0; i < index_len; i++) {
 		if (pgm_read_byte(&(index[i][0])) == mode_general) {
-			uint8_t result = find_pair_pgm(addr[pgm_read_byte(&(index[i][1]))], pgm_read_byte(&(index[i][2])), find_bit_value, com);
+			uint8_t result = find_pair_pgm(&(addr[pgm_read_byte(&(index[i][1]))]), pgm_read_byte(&(index[i][2])), find_bit_value, com);
 			if (result != UINT8_MAX)
 				return(result);
 			break;
@@ -182,7 +196,7 @@ static uint8_t find_compareOutputMode_pgm(uint8_t const addr[][2], uint8_t const
 		uint8_t const com_mode = pgm_read_byte(&(index[i][0]));
 		if (com_mode < 128) {
 			if (com_mode == mode) {
-				uint8_t result = find_pair_pgm(addr[pgm_read_byte(&(index[i][1]))], pgm_read_byte(&(index[i][2])), find_bit_value, com);
+				uint8_t result = find_pair_pgm(&(addr[pgm_read_byte(&(index[i][1]))]), pgm_read_byte(&(index[i][2])), find_bit_value, com);
 				if (result != UINT8_MAX)
 					return(result);
 				break;
@@ -192,21 +206,6 @@ static uint8_t find_compareOutputMode_pgm(uint8_t const addr[][2], uint8_t const
 	return(UINT8_MAX);
 }
 
-static void timer_0_set_clockSelect_bits(uint8_t const value);
-static void timer_1_set_clockSelect_bits(uint8_t const value);
-static void timer_0_set_mode_bits(uint8_t const value);
-static void timer_1_set_mode_bits(uint8_t const value);
-static void timer_0_set_compareOutputMode_A_bits(uint8_t const value);
-static void timer_0_set_compareOutputMode_B_bits(uint8_t const value);
-static void timer_1_set_compareOutputMode_A_bits(uint8_t const value);
-static void timer_1_set_compareOutputMode_B_bits(uint8_t const value);
-static uint8_t timer_0_get_clockSelect_bits(void);
-static uint8_t timer_1_get_clockSelect_bits(void);
-static uint8_t timer_0_get_mode_bits(void);
-static uint8_t timer_1_get_mode_bits(void);
-static Timer_ModeGeneral_e timer_get_modeGeneral_m(uint8_t const mode);
-static uint8_t timer_0_get_compareOutputMode_A_bits(void);
-static uint8_t timer_0_get_compareOutputMode_B_bits(void);
 static void timer_0_set_clockSelect_bits(uint8_t const value) {
 	TCCR0B &= 0b11111000;
 	TCCR0B |= (value & 0b00000111);
@@ -267,6 +266,7 @@ static void timer_0_set_compareOutputMode_B_bits(uint8_t const value) {
 	TCCR0A |= ((value & 0b00000011) << 4);
 }
 
+/*
 static void timer_1_set_compareOutputMode_A_bits(uint8_t const value) {
 	TCCR1A &= 0b00111111;
 	TCCR1A |= ((value & 0b00000011) << 6);
@@ -276,6 +276,7 @@ static void timer_1_set_compareOutputMode_B_bits(uint8_t const value) {
 	TCCR1A &= 0b11001111;
 	TCCR1A |= ((value & 0b00000011) << 4);
 }
+*/
 
 void timer_set_compareOutputMode(Timer_Select_e const timer, Timer_OutputComparePin_e const pin, Timer_CompareOutputMode_e const value) {
 	uint8_t res;
