@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <inttypes.h>
 #include <avr/sfr_defs.h>
@@ -25,3 +29,7 @@ void button_clear(Button *const button);
 void button_defaultSetup(Button *const button);	//Maybe defaultInit?
 //Update the buttons values
 void button_update(Button *const button);
+
+#ifdef __cplusplus
+}
+#endif
