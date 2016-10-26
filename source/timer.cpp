@@ -5,7 +5,7 @@
 static timer::Runtime runtime;
 
 #ifndef __INTELLISENSE__
-#include "../../tedavr_project/timer_interrupt.cpp"
+ISR(TEDAVR_TIMER_EXPRESSION_VECT_OVERFLOWINTERRUPT)
 	if (runtime.loop_index == runtime.param.loop) {
 		if (runtime.loop_remainder) {
 			timer::tick();
@@ -13,7 +13,7 @@ static timer::Runtime runtime;
 		}
 		else {
 			runtime.loop_remainder = true;
-#include "../../tedavr_project/timer_assign_home.cpp"
+			TEDAVR_TIMER_EXPRESSION_TIMERVAR = TEDAVR_TIMER_EXPRESSION_TIMERVAR_MAX - runtime.param.home;
 		}
 	}
 	else {
@@ -27,7 +27,9 @@ void timer::init() {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 #endif
 		next_tick();
-#include "../../tedavr_project/timer_init.cpp"
+		TEDAVR_TIMER_EXPRESSION_PRESCALEVAR &= ~0b111;
+		TEDAVR_TIMER_EXPRESSION_PRESCALEVAR |= runtime.param.prescale;
+		TEDAVR_TIMER_EXPRESSION_ENABLEOVRERFLOWINTERRUPT;
 #ifndef __INTELLISENSE__
 }
 #endif
@@ -45,7 +47,7 @@ void timer::next_tick() {
 		//And if it's going straight to the remainder
 		else {
 			runtime.loop_remainder = true;
-#include "../../tedavr_project/timer_assign_home.cpp"
+			TEDAVR_TIMER_EXPRESSION_TIMERVAR = TEDAVR_TIMER_EXPRESSION_TIMERVAR_MAX - runtime.param.home;
 		}
 #ifndef __INTELLISENSE__
 	}

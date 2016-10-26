@@ -9,8 +9,8 @@
 #include <util/atomic.h>
 #endif
 
-//TIMER_INTERVAL defined
-#include "../../../tedavr_project/timer_define.h"
+//Device specific things
+#include "../../device/timer.h"
 
 class Timer;
 
