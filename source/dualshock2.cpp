@@ -171,10 +171,11 @@ void Dualshock2::update() {
 	button[Button::Left].a = buffer[Slave::Packet::Poll::Pressure::Left::offset + Master::Header::len];
 	button[Button::Right].a = buffer[Slave::Packet::Poll::Pressure::Right::offset + Master::Header::len];
 
-	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Left::X::offset + Master::Header::len] * 265;
-	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Left::Y::offset + Master::Header::len] * 256;
-	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Right::X::offset + Master::Header::len] * 256;
-	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Right::Y::offset + Master::Header::len] * 256;
+	//For some reason reinterpret_cast didn't work here.
+	stick[Stick::Left].pos_x = (static_cast<int16_t>(buffer[Slave::Packet::Poll::Stick::Left::X::offset + Master::Header::len]) - 0x7f) * 0xff;
+	stick[Stick::Left].pos_y = (static_cast<int16_t>(buffer[Slave::Packet::Poll::Stick::Left::Y::offset + Master::Header::len]) - 0x7f) * 0xff;
+	stick[Stick::Right].pos_x = (static_cast<int16_t>(buffer[Slave::Packet::Poll::Stick::Right::X::offset + Master::Header::len]) - 0x7f) * 0xff;
+	stick[Stick::Right].pos_y = (static_cast<int16_t>(buffer[Slave::Packet::Poll::Stick::Right::Y::offset + Master::Header::len]) - 0x7f) * 0xff;
 
 	gp_update();
 
