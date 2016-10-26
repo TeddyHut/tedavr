@@ -15,7 +15,7 @@
 class Timer;
 
 namespace timer {
-	struct Parameter {
+	struct Parameter {	
 		constexpr Parameter() {}
 		constexpr Parameter(uint8_t const nprescale, uint8_t const nhome, uint8_t const nloop) : prescale(nprescale), home(nhome), loop(nloop) {}
 		uint8_t prescale = 0;
@@ -35,6 +35,7 @@ namespace timer {
 		return((static_cast<uint64_t>(determine_cycles(prescale, interval, cpu_freq)) > 0) ? true : false);
 	}
 	constexpr Parameter determine_parameters(double const interval = 0.001, double const cpu_freq = F_CPU) {
+#if !defined(__AVR_ATmega328P__) && !defined(__AVR_ATmega328__) && !defined(__AVR_ATmega168__)
 		return(Parameter(static_cast<uint8_t>(
 			determine_prescale_valid(1024, interval, cpu_freq) ? 0b101 :
 			determine_prescale_valid(256, interval, cpu_freq) ? 0b100 :
@@ -61,6 +62,34 @@ namespace timer {
 					determine_prescale_valid(1, interval, cpu_freq) ? determine_loop(1, interval, cpu_freq) :
 					0)));
 	}
+#else 
+		return(Parameter(static_cast<uint8_t>(
+			determine_prescale_valid(1024, interval, cpu_freq) ? 0b111 :
+			determine_prescale_valid(256, interval, cpu_freq) ? 0b110 :
+			determine_prescale_valid(128, interval, cpu_freq) ? 0b101 :
+			determine_prescale_valid(64, interval, cpu_freq) ? 0b100 :
+			determine_prescale_valid(32, interval, cpu_freq) ? 0b011 :
+			determine_prescale_valid(8, interval, cpu_freq) ? 0b010 :
+			determine_prescale_valid(1, interval, cpu_freq) ? 0b001 :
+			0), static_cast<uint8_t>(
+				determine_prescale_valid(1024, interval, cpu_freq) ? determine_home(1024, interval, cpu_freq) :
+				determine_prescale_valid(256, interval, cpu_freq) ? determine_home(256, interval, cpu_freq) :
+				determine_prescale_valid(128, interval, cpu_freq) ? determine_home(128, interval, cpu_freq) :
+				determine_prescale_valid(64, interval, cpu_freq) ? determine_home(64, interval, cpu_freq) :
+				determine_prescale_valid(32, interval, cpu_freq) ? determine_home(32, interval, cpu_freq) :
+				determine_prescale_valid(8, interval, cpu_freq) ? determine_home(8, interval, cpu_freq) :
+				determine_prescale_valid(1, interval, cpu_freq) ? determine_home(1, interval, cpu_freq) :
+				0), static_cast<size_t>(
+					determine_prescale_valid(1024, interval, cpu_freq) ? determine_loop(1024, interval, cpu_freq) :
+					determine_prescale_valid(256, interval, cpu_freq) ? determine_loop(256, interval, cpu_freq) :
+					determine_prescale_valid(128, interval, cpu_freq) ? determine_loop(128, interval, cpu_freq) :
+					determine_prescale_valid(64, interval, cpu_freq) ? determine_loop(64, interval, cpu_freq) :
+					determine_prescale_valid(32, interval, cpu_freq) ? determine_loop(32, interval, cpu_freq) :
+					determine_prescale_valid(8, interval, cpu_freq) ? determine_loop(8, interval, cpu_freq) :
+					determine_prescale_valid(1, interval, cpu_freq) ? determine_loop(1, interval, cpu_freq) :
+					0)));
+}
+#endif
 	struct Runtime {
 		static constexpr timer::Parameter param = timer::determine_parameters(TIMER_INTERVAL);
 		size_t loop_index = 0;

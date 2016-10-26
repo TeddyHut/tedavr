@@ -4,7 +4,7 @@
 
 #define TIMER_INTERVAL 0.001
 
-#elif
+#else
 
 #include "../../tedavr_device/timer_definition.h"
 
@@ -16,7 +16,7 @@
 #include "timer/avr_atmega328p.h"
 #endif
 
-#elif
+#else
 
 #include "../../tedavr_device/timer_expression.h"
 

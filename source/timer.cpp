@@ -5,7 +5,7 @@
 static timer::Runtime runtime;
 
 #ifndef __INTELLISENSE__
-ISR(TEDAVR_TIMER_EXPRESSION_VECT_OVERFLOWINTERRUPT)
+ISR(TEDAVR_TIMER_EXPRESSION_VECT_OVERFLOWINTERRUPT) {
 	if (runtime.loop_index == runtime.param.loop) {
 		if (runtime.loop_remainder) {
 			timer::tick();

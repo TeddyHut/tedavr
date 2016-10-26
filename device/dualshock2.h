@@ -2,7 +2,7 @@
 
 #ifndef TEDAVR_DEVICE_DUALSHOCK2_DEFINITION_CUSTOM
 
-#elif
+#else
 
 #include "../../tedavr_device/dualshock2_definition.h"
 
@@ -14,7 +14,7 @@
 #include "dualshock2/avr_atmega328p.h"
 #endif
 
-#elif
+#else
 
 #include "../../tedavr_device/dualshock2_expression.h"
 

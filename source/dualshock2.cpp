@@ -91,26 +91,31 @@ void Dualshock2::init() {
 	spi_open();
 
 	uint8_t buffer[Dualshock2Data::Common::max_len];
-
+#define DELAY_TIME 5000
 	//Generate config buffer
 	gen_header(buffer, Header::Command::Config, 0);
 	gen_command_config(buffer, true, Header::len);
+	_delay_us(DELAY_TIME);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
 	gen_header(buffer, Header::Command::Mode, 0);
 	gen_command_mode(buffer, true, true, Header::len);
+	_delay_us(DELAY_TIME);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
 	gen_header(buffer, Header::Command::MotorMap, 0);
 	gen_command_motorMap(buffer, true, Header::len);
+	_delay_us(DELAY_TIME);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
 	gen_header(buffer, Header::Command::PressureSetup, 0);
 	gen_command_pressureSetup(buffer, Header::len);
+	_delay_us(DELAY_TIME);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
-	
+
 	gen_header(buffer, Header::Command::Config, 0);
 	gen_command_config(buffer, false, Header::len);
+	_delay_us(DELAY_TIME);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
 	spi_close();
@@ -126,7 +131,6 @@ void Dualshock2::update() {
 	//Generate command to poll device
 	gen_header(buffer, Master::Header::Command::Poll, 0);
 	gen_command_poll(buffer, button[Button::LeftRumble].a, button[Button::RightRumble].a, Master::Header::len);
-	bool serialOut = false;
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
 	if (header_prev.mode == Mode::Disconnected) {
@@ -167,10 +171,10 @@ void Dualshock2::update() {
 	button[Button::Left].a = buffer[Slave::Packet::Poll::Pressure::Left::offset + Master::Header::len];
 	button[Button::Right].a = buffer[Slave::Packet::Poll::Pressure::Right::offset + Master::Header::len];
 
-	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Left::X::offset + Master::Header::len];
-	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Left::Y::offset + Master::Header::len];
-	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Right::X::offset + Master::Header::len];
-	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Right::Y::offset + Master::Header::len];
+	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Left::X::offset + Master::Header::len] * 265;
+	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Left::Y::offset + Master::Header::len] * 256;
+	stick[Stick::Left].pos_x = buffer[Slave::Packet::Poll::Stick::Right::X::offset + Master::Header::len] * 256;
+	stick[Stick::Right].pos_y = buffer[Slave::Packet::Poll::Stick::Right::Y::offset + Master::Header::len] * 256;
 
 	gp_update();
 
