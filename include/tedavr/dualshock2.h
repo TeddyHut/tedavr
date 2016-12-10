@@ -8,7 +8,6 @@
 #include "../../device/dualshock2.h"
 #include "gamepad.h"
 #include "dualshock2Data.h"
-#include "../../../include/serial.h"
 
 //Guess I'll just use inheritance. Could just make it a member, but whatever.
 class Dualshock2 : public Gamepad {
