@@ -8,6 +8,7 @@
 #include "../../device/dualshock2.h"
 #include "gamepad.h"
 #include "dualshock2Data.h"
+#include "../../../include/serial.h"
 
 //Guess I'll just use inheritance. Could just make it a member, but whatever.
 class Dualshock2 : public Gamepad {
@@ -52,6 +53,8 @@ public:
 	volatile uint8_t *ss_port;
 	uint8_t ss_pin : 3;
 	SlaveHeader header_prev;
+	//Used to give the controller an extra poll commant after it has connected for a little more time.
+	bool reconnect_loop;
 
 	Dualshock2();
 	Dualshock2(volatile uint8_t *const ss_port, uint8_t const ss_pin);

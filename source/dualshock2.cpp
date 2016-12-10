@@ -69,10 +69,10 @@ void Dualshock2::spi_autoLen_config_buffer(void *const buffer, uint8_t const max
 
 	//Retreive the header
 	spi_buffer(buffer, Dualshock2Data::Slave::Header::len, false);
+	
 
 	//Do a calculation to get the packet size
 	uint8_t const packetSize = 2 * ((buf[Dualshock2Data::Slave::Header::PacketWords::offset] & Dualshock2Data::Slave::Header::PacketWords::mask) >> Dualshock2Data::Slave::Header::PacketWords::shift);
-
 	//Get the data
 	spi_buffer(buf + Dualshock2Data::Slave::Header::len,
 		packetSize > (max_len - Dualshock2Data::Slave::Header::len) ?
@@ -92,6 +92,31 @@ void Dualshock2::init() {
 
 	uint8_t buffer[Dualshock2Data::Common::max_len];
 #define DELAY_TIME 5000
+	//Poll Once
+
+	Mode last_mode = header_prev.mode;
+
+	gen_header(buffer, Header::Command::Poll, 0);
+	gen_command_poll(buffer, 0, 0, Header::len);
+	_delay_us(DELAY_TIME);
+	spi_autoLen_config_buffer(buffer, sizeof(buffer));
+	
+	//If the controller was disconnected before communication
+	if (last_mode == Mode::Disconnected) {
+		//If the controller is still disconnected after communication
+		if (header_prev.mode == Mode::Disconnected) {
+			reconnect_loop = false;
+			return;
+		}
+		//If the contrller is no longer disconnected after communication
+		if (header_prev.mode != Mode::Disconnected) {
+			reconnect_loop = true;
+			return;
+		}
+	}
+	else
+		reconnect_loop = false;
+
 	//Generate config buffer
 	gen_header(buffer, Header::Command::Config, 0);
 	gen_command_config(buffer, true, Header::len);
@@ -124,6 +149,11 @@ void Dualshock2::init() {
 void Dualshock2::update() {
 	using namespace Dualshock2Data;
 
+	if ((header_prev.mode == Mode::Disconnected) || reconnect_loop) {
+		init();
+		return;
+	}
+
 	spi_open();
 
 	uint8_t buffer[Common::max_len];
@@ -133,10 +163,6 @@ void Dualshock2::update() {
 	gen_command_poll(buffer, button[Button::LeftRumble].a, button[Button::RightRumble].a, Master::Header::len);
 	spi_autoLen_config_buffer(buffer, sizeof(buffer));
 
-	if (header_prev.mode == Mode::Disconnected) {
-		init();
-		return;
-	}
 
 	uint16_t buttonData;
 	degen_buttons(buffer, &buttonData, Master::Header::len);
@@ -182,13 +208,13 @@ void Dualshock2::update() {
 	spi_close();
 }
 
-Dualshock2::Dualshock2() {
+Dualshock2::Dualshock2() : reconnect_loop(false), header_prev{ Mode::Disconnected, 0 } {
 	set_defaultButton();
 	gp_reset();
 	set_specButton();
 }
 
-Dualshock2::Dualshock2(volatile uint8_t *const ss_port, uint8_t const ss_pin) : ss_port(ss_port), ss_pin(ss_pin) {
+Dualshock2::Dualshock2(volatile uint8_t *const ss_port, uint8_t const ss_pin) : ss_port(ss_port), ss_pin(ss_pin), reconnect_loop(false), header_prev{ Mode::Disconnected, 0 } {
 	set_defaultButton();
 	gp_reset();
 	set_specButton();
