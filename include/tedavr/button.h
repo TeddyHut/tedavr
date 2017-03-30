@@ -1,49 +1,35 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#pragma once
 
-#include <avr/io.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define BUTTON_ATTRIB_AUTO 0
-#define BUTTON_ATTRIB_CURRENT_STATE 1
-#define BUTTON_ATTRIB_PREVIOUS_STATE 2
-#define BUTTON_ATTRIB_PUSHED 3
-#define BUTTON_ATTRIB_RELEASED 4
-#define BUTTON_ATTRIB_PORT_BIT_0 5
-#define BUTTON_ATTRIB_PORT_BIT_1 6
-#define BUTTON_ATTRIB_PORT_BIT_2 7
+#include <stddef.h>
+#include <inttypes.h>
+#include <avr/sfr_defs.h>
 
-#define BUTTON_PORT_BIT_SHIFT 5
-#define BUTTON_PORT_BIT_MASK 0b11100000
-
-typedef struct Button {
-	uint8_t attrib;
-	volatile uint8_t* port;
+typedef struct {
+	uint8_t flag_function_updateCurrent : 1;	//Default = 1; Update current button state
+	uint8_t flag_function_updatePrevious : 1;	//Default = 1; Update previous button state
+	uint8_t flag_function_updatePushed : 1;		//Default = 1; Update pushed button state
+	uint8_t flag_function_updateReleased : 1;	//Default = 1; Update released button state
+	uint8_t flag_logic_idle : 1;				//Default = 1; The state in which the button is idle
+	uint8_t flag_state_current : 1;				//Current state of the button
+	uint8_t flag_state_previous : 1;			//Previous state of the button
+	uint8_t flag_state_pushed : 1;				//Pushed state of the button
+	uint8_t flag_state_released : 1;			//Released state of the button
+	uint8_t data_shift_portBit : 3;				//The port bit on which the button is located
+uint8_t: 0;
+	volatile uint8_t *data_port_p;				//The port on which the button is located
 }Button;
 
-uint8_t _buttonBV(uint8_t bit);
+//Clear button contents to 0
+void button_clear(Button *const button);
+//Setup button according to default values
+void button_defaultSetup(Button *const button);	//Maybe defaultInit?
+//Update the buttons values
+void button_update(Button *const button);
 
-void buttonSet_attrib_auto(Button* button,uint8_t state);
-void buttonSet_attrib_currentState(Button* button,uint8_t state);
-void buttonSet_attrib_previousState(Button* button,uint8_t state);
-void buttonSet_attrib_pushed(Button* button,uint8_t state);
-void buttonSet_attrib_released(Button* button,uint8_t state);
-void buttonSet_attrib_portBit(Button* button,uint8_t state);
-void buttonSet_port(Button* button,volatile uint8_t* state);
-uint8_t buttonGet_attrib_auto(Button* button);
-uint8_t buttonGet_attrib_currentState(Button* button);
-uint8_t buttonGet_attrib_previousState(Button* button);
-uint8_t buttonGet_attrib_pushed(Button* button);
-uint8_t buttonGet_attrib_released(Button* button);
-uint8_t buttonGet_attrib_portBit(Button* button);
-volatile uint8_t* buttonGet_port(Button* button);
-
-void button_clear(Button* button);
-void button_setDefault(Button* button);
-
-void button_runover(Button* button);
-void button_runoverSegment0(Button* button);
-void button_runoverSegment1(Button* button);
-void button_runoverSegment2(Button* button);
-void button_runoverSegment3(Button* button);
-
-#endif //Button.h
+#ifdef __cplusplus
+}
+#endif

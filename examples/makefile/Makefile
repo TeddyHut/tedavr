@@ -41,7 +41,7 @@
 
 
 # MCU name
-MCU = atmega8
+MCU = 
 
 
 # Processor frequency.
@@ -62,7 +62,7 @@ MCU = atmega8
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 10000000
+F_CPU = 
 
 
 # Output format. (can be srec, ihex, binary)
@@ -70,7 +70,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = main
+TARGET = source/main
 
 
 # Object files directory
@@ -78,13 +78,12 @@ TARGET = main
 #     this an empty or blank macro!
 OBJDIR = .
 
-
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c ../../../source/button.c
+SRC = 
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = 
+CPPSRC = $(TARGET).cpp 
 
 
 # List Assembler source files here.
@@ -94,7 +93,7 @@ CPPSRC =
 #     Even though the DOS/Win* filesystem matches both .s and .S the same,
 #     it will preserve the spelling of the filenames, and gcc itself does
 #     care about how the name is spelled on its command-line.
-ASRC =
+ASRC = 
 
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
@@ -182,7 +181,9 @@ CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 CPPFLAGS += -Wall
+CPPFLAGS += -Wno-reorder
 CPPFLAGS += -Wundef
+CPPFLAGS += -std=c++11
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
 #CPPFLAGS += -Wstrict-prototypes
@@ -600,6 +601,13 @@ clean_list :
 	$(REMOVE) $(SRC:.c=.s)
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) $(SRC:.c=.i)
+	$(REMOVE) $(CPPSRC:%.cpp=$(OBJDIR)/%.o)
+	$(REMOVE) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst)
+	$(REMOVE) $(CPPSRC:.cpp=.s)
+	$(REMOVE) $(CPPSRC:.cpp=.d)
+	$(REMOVE) $(CPPSRC:.cpp=.i)
+	$(REMOVE) $(ASRC:%.S=$(OBJDIR)/%.o)
+	$(REMOVE) $(ASRC:%.S=$(OBJDIR)/%.lst)
 	$(REMOVEDIR) .dep
 
 
